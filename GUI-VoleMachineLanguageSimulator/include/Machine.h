@@ -9,12 +9,9 @@ class Machine
 private:
 	std::ifstream m_inputFile;
 
-	Byte m_memory[256];
-
-	int m_startAddress;
+	int m_startAddress{};
 	std::vector<Byte> m_loadedInstructions;
 
-	CPU cpu;
 
 	// Loads all the instructions in a given file returns false if there was an error
 	bool LoadAllInstructions();
@@ -22,18 +19,20 @@ private:
 	// Sets the start address of the program returns false if the start address is invalid
 	bool SetStartAddress();
 
-	void DisplayInfo();
+	//void DisplayInfo();
 
 	void ResetMachine();
 
 	// Returns false if it couldn't load a new program
-	bool LoadNewProgram();
+	bool LoadNewProgram(char* instructions);
 
 
 	void LoadInstructionsIntoMemory();
 
 public:
-	void Run();
+	CPU cpu;
+	Byte m_memory[256];
+	void Run(int choice,char* instructions);
 
 };
 

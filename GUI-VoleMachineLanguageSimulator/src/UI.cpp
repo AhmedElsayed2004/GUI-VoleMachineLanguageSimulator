@@ -21,7 +21,6 @@ UI::UI(ID3D10Device* g_pd3dDevice, IDXGISwapChain* g_pSwapChain, UINT g_ResizeWi
     m_g_mainRenderTargetView = g_mainRenderTargetView;
     
 }
-UI::UI() {};
 void UI::Run()
 {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -78,13 +77,36 @@ void UI::Run()
                     for (int column = 1; column < 17; column++)
                     {
                         ImGui::TableSetColumnIndex(column);
-                        ImGui::Text("%d %d", 0, 0);
+                        ImGui::Text("%c %c", mainMemory[row * 16 + column - 1].nibble[0], mainMemory[row * 16 + column - 1].nibble[1]);
                     }
                 }
                 ImGui::EndTable();
             }
         }ImGui::End();
 
+
+        if(ImGui::Button("Load a new program"))
+        {
+            m_openInstructionWindow = true;
+            for (int i = 0;i < 1000;++i)
+            {
+                instructions[i] = 0;
+            }
+        }
+        if (m_openInstructionWindow)
+        {
+            ImGui::SetNextWindowSize({ 400,400 });
+            if (ImGui::Begin("Input instructions"))
+            {
+                ImGui::Text("Enter instructions");
+                ImGui::InputTextMultiline("##instructions", instructions, IM_ARRAYSIZE(instructions), ImVec2(400, 200));
+                if (ImGui::Button("OK"))
+                {
+                    inputTaken = 1;
+                    m_openInstructionWindow = false;
+                }
+            }ImGui::End();
+        }
 
         // Rendering
         ImGui::Render();

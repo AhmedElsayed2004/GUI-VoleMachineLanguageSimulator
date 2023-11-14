@@ -163,6 +163,7 @@
     <ClInclude Include="dependencies\ImGui\imstb_truetype.h" />
     <ClInclude Include="include\Byte.h" />
     <ClInclude Include="include\CPU.h" />
+    <ClInclude Include="include\Event.h" />
     <ClInclude Include="include\Machine.h" />
     <ClInclude Include="include\Program.h" />
     <ClInclude Include="include\UI.h" />

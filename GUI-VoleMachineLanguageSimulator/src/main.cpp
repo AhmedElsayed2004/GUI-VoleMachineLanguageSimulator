@@ -26,7 +26,8 @@ int main()
         {
             machine.Run(ui.inputTaken,ui.instructions);
             ui.inputTaken = 0;
-        }
+            ui.SetEvent(machine.GetEvent());
+        }   
     }
 
 }

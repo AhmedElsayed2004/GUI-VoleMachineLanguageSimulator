@@ -6,8 +6,8 @@
 
 void Machine::Run(int choice,char* instructions)
 {
-
-    cpu.programCounter = m_startAddress;
+    m_event = Event::NONE;
+    //cpu.programCounter = m_startAddress;
 
     //std::cout << "Enter 1 to load a new program" << std::endl;
     //std::cout << "Enter 2 to execute next step" << std::endl;
@@ -27,13 +27,11 @@ void Machine::Run(int choice,char* instructions)
     {
     case 1:
         ResetMachine();
-        LoadNewProgram( instructions);
-
+        LoadNewProgram(instructions);
         cpu.programCounter = m_startAddress;
-
         break;
     case 2:
-        /*cpu.FetchInstruction(m_memory);
+        cpu.FetchInstruction(m_memory);
 
         if (cpu.IsValidInstruction() && !cpu.isHalt)
         {
@@ -41,34 +39,36 @@ void Machine::Run(int choice,char* instructions)
         }
         else if (cpu.isHalt)
         {
-            std::cout << "Program has halted" << std::endl;
+            m_event = Event::PROGRAM_HALTED;
         }
         else if (!cpu.IsValidInstruction())
         {
-            std::cout << "Invalid Instruction at address " << cpu.programCounter << std::endl;
-        }*/
+            m_event = Event::INVALID_INSTRUCTION;
+        }
+
         break;
     case 3:
-        /*while (true)
+        while (true)
         {
             cpu.FetchInstruction(m_memory);
             if (cpu.IsValidInstruction() && !cpu.isHalt)
             {
                 cpu.ExecuteInstruction(m_memory);
+         
             }
 
             else if (cpu.isHalt)
             {
-                std::cout << "Program has halted" << std::endl;
+                m_event = Event::PROGRAM_HALTED;
                 break;
             }
 
             else if (!cpu.IsValidInstruction())
             {
-                std::cout << "Invalid Instruction at address " << cpu.programCounter << std::endl;
+                m_event = Event::INVALID_INSTRUCTION;
                 break;
             }
-        }*/
+        }
         break;
     case 4:
         //DisplayInfo();
@@ -152,6 +152,11 @@ bool Machine::SetStartAddress()
 
     m_startAddress = startAddress;
     return true;
+}
+
+Event Machine::GetEvent()
+{
+    return m_event;
 }
 
 void Machine::ResetMachine()

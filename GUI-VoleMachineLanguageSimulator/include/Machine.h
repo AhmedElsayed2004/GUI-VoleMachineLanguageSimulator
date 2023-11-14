@@ -1,4 +1,5 @@
 #pragma once
+#include "Event.h"
 #include "Byte.h"
 #include <vector>
 #include <fstream>
@@ -11,6 +12,7 @@ private:
 
 	int m_startAddress{};
 	std::vector<Byte> m_loadedInstructions;
+	Event m_event = Event::NONE;
 
 
 	// Loads all the instructions in a given file returns false if there was an error
@@ -32,7 +34,10 @@ private:
 public:
 	CPU cpu;
 	Byte m_memory[256];
+
 	void Run(int choice,char* instructions);
+	Event GetEvent();
+
 
 };
 

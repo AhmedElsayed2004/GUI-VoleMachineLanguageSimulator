@@ -5,7 +5,8 @@
 #include <d3d10_1.h>
 #include <d3d10.h>
 #include <tchar.h>
-#include"Byte.h"
+#include "Byte.h"
+#include "Event.h"
 
 
 class UI
@@ -25,10 +26,17 @@ private:
 	void CreateRenderTarget();
 	void CleanupRenderTarget();
 
+	Event m_event = Event::NONE;
+
 public:
-	void Run( Byte mainMemory[], Byte CPURegister[]);
+	void Run(const Byte mainMemory[], const Byte CPURegister[]);
 	char instructions[1000];
 	int inputTaken = 0;
+
+	void DrawMemory(const Byte mainMemory[]);
+	void SetEvent(Event event);
+
+
 	UI(ID3D10Device* g_pd3dDevice, IDXGISwapChain* g_pSwapChain, UINT g_ResizeWidth, UINT g_ResizeHeight,
 		ID3D10RenderTargetView* g_mainRenderTargetView, HWND& hWnd, WNDCLASSEXW& wc);
 	~UI();

@@ -1,0 +1,9 @@
+#pragma once
+
+enum class Event
+{
+	NONE,
+	PROGRAM_HALTED,
+	INVALID_INSTRUCTION,
+	TOO_MANY_INSTRUCTIONS,
+};

@@ -21,6 +21,7 @@ UI::UI(ID3D10Device* g_pd3dDevice, IDXGISwapChain* g_pSwapChain, UINT g_ResizeWi
     m_g_mainRenderTargetView = g_mainRenderTargetView;
     
 }
+UI::UI() {};
 void UI::Run()
 {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -48,7 +49,6 @@ void UI::Run()
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
         ImGui::SetNextWindowSize({ 800,400 });

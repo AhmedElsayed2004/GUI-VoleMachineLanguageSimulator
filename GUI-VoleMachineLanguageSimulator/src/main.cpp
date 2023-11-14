@@ -60,10 +60,17 @@ int main()
     ImGui_ImplDX10_Init(g_pd3dDevice);
 
     UI ui(g_pd3dDevice, g_pSwapChain, g_ResizeWidth, g_ResizeHeight, g_mainRenderTargetView);
+
+    Machine machine;
     // UI RUNNER
     while (true)
     {
-        ui.Run();
+        ui.Run(machine.m_memory,machine.cpu.cpuRegister);
+        if (ui.inputTaken)
+        {
+            machine.Run(ui.inputTaken,ui.instructions);
+            ui.inputTaken = 0;
+        }
     }
 
 

@@ -1,27 +1,6 @@
 #include "UI.h"
-void UI::CreateRenderTarget()
-{
-    ID3D10Texture2D* pBackBuffer;
-    m_g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    m_g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &m_g_mainRenderTargetView);
-    pBackBuffer->Release();
-}
 
-void UI::CleanupRenderTarget()
-{
-    if (m_g_mainRenderTargetView) { m_g_mainRenderTargetView->Release(); m_g_mainRenderTargetView = nullptr; }
-}
-
-UI::UI(ID3D10Device* g_pd3dDevice, IDXGISwapChain* g_pSwapChain, UINT g_ResizeWidth, UINT g_ResizeHeight, ID3D10RenderTargetView* g_mainRenderTargetView)
-{
-    m_g_pd3dDevice = g_pd3dDevice;
-    m_g_pSwapChain = g_pSwapChain;
-    m_g_ResizeWidth = g_ResizeWidth;
-    m_g_ResizeHeight = g_ResizeHeight;
-    m_g_mainRenderTargetView = g_mainRenderTargetView;
-    
-}
-void UI::Run()
+void UI::Run(Byte mainMemory[], Byte CPURegister[])
 {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     bool done = false;
@@ -123,4 +102,119 @@ void UI::Run()
         }
 
         m_g_pSwapChain->Present(1, 0); // Present with vsync
+}
+
+UI::UI(ID3D10Device* g_pd3dDevice, IDXGISwapChain* g_pSwapChain, UINT g_ResizeWidth, UINT g_ResizeHeight,
+    ID3D10RenderTargetView* g_mainRenderTargetView, HWND& hWnd, WNDCLASSEXW& wc)
+{
+    m_g_pd3dDevice = g_pd3dDevice;
+    m_g_pSwapChain = g_pSwapChain;
+    m_g_ResizeWidth = g_ResizeWidth;
+    m_g_ResizeHeight = g_ResizeHeight;
+    m_g_mainRenderTargetView = g_mainRenderTargetView;
+    m_hwnd = hWnd;
+
+    // Initialize Direct3D
+    if (!CreateDeviceD3D())
+    {
+        CleanupDeviceD3D();
+        ::UnregisterClassW(m_wc.lpszClassName, m_wc.hInstance);
+    }
+
+    // Show the window
+    ::ShowWindow(m_hwnd, SW_SHOWDEFAULT);
+    ::UpdateWindow(m_hwnd);
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    //io.ConfigViewportsNoAutoMerge = true;
+    //io.ConfigViewportsNoTaskBarIcon = true;
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
+
+    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+    ImGuiStyle& style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplWin32_Init(m_hwnd);
+    ImGui_ImplDX10_Init(m_g_pd3dDevice);
+
+
+}
+
+UI::~UI()
+{
+    ImGui_ImplDX10_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+
+    CleanupDeviceD3D();
+    ::DestroyWindow(m_hwnd);
+    ::UnregisterClassW(m_wc.lpszClassName, m_wc.hInstance);
+}
+
+
+// Helper functions
+bool UI::CreateDeviceD3D()
+{
+    // Setup swap chain
+    DXGI_SWAP_CHAIN_DESC sd;
+    ZeroMemory(&sd, sizeof(sd));
+    sd.BufferCount = 2;
+    sd.BufferDesc.Width = 0;
+    sd.BufferDesc.Height = 0;
+    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    sd.BufferDesc.RefreshRate.Numerator = 60;
+    sd.BufferDesc.RefreshRate.Denominator = 1;
+    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.OutputWindow = m_hwnd;
+    sd.SampleDesc.Count = 1;
+    sd.SampleDesc.Quality = 0;
+    sd.Windowed = TRUE;
+    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+    UINT createDeviceFlags = 0;
+    //createDeviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
+    HRESULT res = D3D10CreateDeviceAndSwapChain(nullptr, D3D10_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, D3D10_SDK_VERSION, &sd, &m_g_pSwapChain, &m_g_pd3dDevice);
+    if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
+        res = D3D10CreateDeviceAndSwapChain(nullptr, D3D10_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, D3D10_SDK_VERSION, &sd, &m_g_pSwapChain, &m_g_pd3dDevice);
+    if (res != S_OK)
+        return false;
+
+    CreateRenderTarget();
+    return true;
+}
+
+void UI::CleanupDeviceD3D()
+{
+    CleanupRenderTarget();
+    if (m_g_pSwapChain) { m_g_pSwapChain->Release(); m_g_pSwapChain = nullptr; }
+    if (m_g_pd3dDevice) { m_g_pd3dDevice->Release(); m_g_pd3dDevice = nullptr; }
+}
+
+void UI::CreateRenderTarget()
+{
+    ID3D10Texture2D* pBackBuffer;
+    m_g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+    m_g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &m_g_mainRenderTargetView);
+    pBackBuffer->Release();
+}
+
+void UI::CleanupRenderTarget()
+{
+    if (m_g_mainRenderTargetView) { m_g_mainRenderTargetView->Release(); m_g_mainRenderTargetView = nullptr; }
 }

@@ -31,11 +31,15 @@ private:
 
 	void LoadInstructionsIntoMemory();
 
+	void SetStartAddress(char* startAddress);
+
+	bool ValidHex(char digit);
+
 public:
 	CPU cpu;
 	Byte m_memory[256];
 
-	void Run(int choice,char* instructions);
+	void Run(int choice,char* instructions, char* startAddress);
 	Event GetEvent();
 
 

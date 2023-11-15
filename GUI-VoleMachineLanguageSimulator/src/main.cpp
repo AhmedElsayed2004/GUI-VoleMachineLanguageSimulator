@@ -21,10 +21,10 @@ int main()
     // UI RUNNER
     while (true)
     {
-        ui.Run(machine.m_memory,machine.cpu.cpuRegister);
+        ui.Run(machine.m_memory,machine.cpu.cpuRegister, machine.cpu.IR, machine.cpu.programCounter);
         if (ui.inputTaken)
         {
-            machine.Run(ui.inputTaken,ui.instructions);
+            machine.Run(ui.inputTaken,ui.instructions,ui.startAddress);
             ui.inputTaken = 0;
             ui.SetEvent(machine.GetEvent());
         }   

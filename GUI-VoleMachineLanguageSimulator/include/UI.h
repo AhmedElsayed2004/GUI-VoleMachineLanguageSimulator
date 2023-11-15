@@ -1,5 +1,6 @@
 #pragma once
 #include "imgui.h"
+#include <string>
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx10.h"
 #include <d3d10_1.h>
@@ -20,6 +21,8 @@ private:
 	WNDCLASSEXW m_wc;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	bool m_openInstructionWindow = false;
+	bool m_openHelpWindow = false;
+
 
 	bool CreateDeviceD3D();
 	void CleanupDeviceD3D();
@@ -29,8 +32,9 @@ private:
 	Event m_event = Event::NONE;
 
 public:
-	void Run(const Byte mainMemory[], const Byte CPURegister[]);
+	void Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, int programCounter);
 	char instructions[1000];
+	char startAddress[3];
 	int inputTaken = 0;
 
 	void DrawMemory(const Byte mainMemory[]);

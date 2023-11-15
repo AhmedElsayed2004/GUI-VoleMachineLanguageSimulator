@@ -1,8 +1,10 @@
 #include "UI.h"
 
-void UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, int programCounter)
+void UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, int programCounter, char screen)
 {
+	
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
 	MSG msg;
 	while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
 	{
@@ -26,150 +28,31 @@ void UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, 
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-
-
 	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 	DrawMemory(mainMemory);
 
-
-
 	if (m_event == Event::INVALID_INSTRUCTION)
-	{
-		ImGui::SetNextWindowSize({ 250,100 });
-		if (ImGui::Begin("Invalid Instruction.", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
-		{
-			ImGui::Text("You enter invalid instruction");
-
-			ImGui::SetCursorPos(ImVec2(200, 60));
-			if (ImGui::Button("Close"))
-			{
-				m_event = Event::NONE;
-			}
-
-		}ImGui::End();
-	}
+		ShowMessage("Invalid Instruction.", "The current instruction is invalid");
 
 	if (m_event == Event::PROGRAM_HALTED)
-	{
-		ImGui::SetNextWindowSize({ 250,100 });
-		if (ImGui::Begin("Program halt.", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
-		{
-			ImGui::Text("The program halt.");
+		ShowMessage("Program halted.", "The program has halted");
 
-			ImGui::SetCursorPos(ImVec2(200, 60));
-			if (ImGui::Button("Close"))
-			{
-				m_event = Event::NONE;
-			}
-
-		}ImGui::End();
-	}
+	if (m_event == Event::INVALID_START_ADDRESS)
+		ShowMessage("Invalid start address", "Please enter a valid start address");
 
 	if (m_openInstructionWindow)
-	{
-		ImGui::SetNextWindowSize({ 400,400 });
-		if (ImGui::Begin("Input instructions", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
-		{
-			ImGui::Text("Enter instructions");
-			ImGui::InputTextMultiline("##instructions", instructions, IM_ARRAYSIZE(instructions), ImVec2(400, 200));
-
-			ImGui::SetCursorPos(ImVec2(350, 350));
-			if (ImGui::Button("OK"))
-			{
-				inputTaken = 1;
-				m_openInstructionWindow = false;
-			}
-
-			ImGui::SetCursorPos(ImVec2(10, 350));
-			ImGui::InputTextMultiline("Enter Start Address", startAddress, IM_ARRAYSIZE(startAddress), ImVec2(50, 25));
-		}ImGui::End();
-
-	}
+		DrawNewProgramWindow();
 
 	if (m_openHelpWindow)
-	{
-		ImGui::SetNextWindowSize({ 400,400 });
-		if (ImGui::Begin("Help", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
-		{
-			ImGui::Text("Instructions explanation");
-			ImGui::Text("1 RXY  : LOAD the register R with the bit pattern found in the memory cell whose address is XY.");
-			ImGui::Text("2 RXY  : LOAD the register R with the bit pattern XY.");
-			ImGui::Text("3 RXY  : STORE the bit pattern found in register R in the memory cell whose address is XY.");
-			ImGui::Text("4 0RS  : MOVE the bit pattern found in register R to register S. ");
-			ImGui::Text("5 RST  : ADD the bit patterns in registers S and T as though they were two's complement representations and leave the result in register R");
-			ImGui::Text("6 RST  : ADD the bit patterns in registers S and T as though they represented values in floating-point notation and leave the floating-point result in register R. ");
-			ImGui::Text("7 RST  : OR the bit patterns in registers S and T and place the result in register R.");
-			ImGui::Text("8 RST  : AND the bit patterns in register S and T and place the result in register R. ");
-			ImGui::Text("A R0X  : ROTATE the bit pattern in register R one bit to the right X times. Each time place the bit that started at the low-order end at the high-order end. ");
-			ImGui::Text("B RXY  : JUMP to the instruction located in the memory cell at address XY if the bit pattern in register R is equal to the bit pattern in register number 0");
-			ImGui::Text("C 000  : HALT execution.");
+		DrawHelpMenu();
 
-		}ImGui::End();
-	}
+	DrawRegisters(CPURegister);
 
-	// Draw register table
-	ImGui::SetNextWindowSize({ 100,350 });
-	if (ImGui::Begin("Register", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
-	{
-		if (ImGui::BeginTable("Register", 2, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersH))
-		{
+	DrawOptions();
 
-			for (int row = 0; row < 16; row++)
-			{
-				char val;
-				val = row < 10 ? '0' + row : 'A' + (row - 10);
+	DrawScreenWindow(screen);
 
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("R%c",val);
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("%c %c", CPURegister[row].nibble[0], CPURegister[row].nibble[1]);
-			}
-			ImGui::EndTable();
-		}
-	}ImGui::End();
-
-	//Draw window that have all buttons
-	ImGui::SetNextWindowSize({ 400,400 });
-	if (ImGui::Begin("Buttons",NULL, ImGuiWindowFlags_NoCollapse))
-	{
-		if (ImGui::Button("Excute next step"))
-		{
-			inputTaken = 2;
-		}
-		if (ImGui::Button("Excute Entire Program"))
-		{
-			inputTaken = 3;
-		}
-		if (ImGui::Button("Clear"))
-		{
-			inputTaken = 4;
-		}
-		if (ImGui::Button("Load a new program"))
-		{
-			m_openInstructionWindow = true;
-			for (int i = 0; i < 1000; ++i)
-			{
-				instructions[i] = 0;
-			}
-			for (int i = 0; i < 3; ++i)
-			{
-				startAddress[i] = 0;
-			}
-		}
-		if (ImGui::Button("Help"))
-		{
-			m_openHelpWindow = true;
-		}
-	}ImGui::End();
-
-	//Draw window that IR and PC
-	if (ImGui::Begin("IR and PC", NULL, ImGuiWindowFlags_NoCollapse))
-	{
-		ImGui::Text(("IR : " + IR).c_str());
-		ImGui::Text("PC : %d" ,programCounter);
-	}ImGui::End();
-
+	DrawPcIR(IR, programCounter);
 
 	// Rendering
 	ImGui::Render();
@@ -191,7 +74,7 @@ void UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, 
 void UI::DrawMemory(const Byte mainMemory[])
 {
 	ImGui::SetNextWindowSize({ 800,400 });
-	if (ImGui::Begin("Table", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
+	if (ImGui::Begin("Memory", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize ))
 	{
 		if (ImGui::BeginTable("Memory", 17, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersH))
 		{
@@ -222,6 +105,146 @@ void UI::DrawMemory(const Byte mainMemory[])
 			}
 			ImGui::EndTable();
 		}
+	}ImGui::End();
+}
+
+void UI::ShowMessage(std::string header, std::string message)
+{
+	const char* cStringHeader = header.c_str();
+	const char* cStringMessage = message.c_str();
+
+	ImGui::SetNextWindowSize({ 250,100 });
+	if (ImGui::Begin(cStringHeader, NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse ))
+	{
+		ImGui::Text(cStringMessage);
+
+		ImGui::SetCursorPos(ImVec2(200, 60));
+		if (ImGui::Button("Close"))
+		{
+			m_event = Event::NONE;
+		}
+
+	}ImGui::End();
+}
+
+void UI::DrawRegisters(const Byte CPURegister[])
+{
+	ImGui::SetNextWindowSize({ 100,350 });
+	if (ImGui::Begin("Register", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize ))
+	{
+		if (ImGui::BeginTable("Register", 2, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersH))
+		{
+
+			for (int row = 0; row < 16; row++)
+			{
+				char val;
+				val = row < 10 ? '0' + row : 'A' + (row - 10);
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("R%c", val);
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%c %c", CPURegister[row].nibble[0], CPURegister[row].nibble[1]);
+			}
+			ImGui::EndTable();
+		}
+	}ImGui::End();
+}
+
+void UI::DrawNewProgramWindow()
+{
+	ImGui::SetNextWindowSize({ 400,400 });
+	if (ImGui::Begin("Input instructions", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+	{
+		ImGui::Text("Enter instructions");
+		ImGui::InputTextMultiline("##instructions", instructions, IM_ARRAYSIZE(instructions), ImVec2(400, 200));
+
+		ImGui::SetCursorPos(ImVec2(350, 350));
+		if (ImGui::Button("OK"))
+		{
+			inputTaken = 1;
+			m_openInstructionWindow = false;
+		}
+
+		ImGui::SetCursorPos(ImVec2(10, 350));
+		ImGui::InputTextMultiline("Enter Start Address (in hexadecimal)", startAddress, IM_ARRAYSIZE(startAddress), ImVec2(50, 25));
+	}ImGui::End();
+
+}
+
+void UI::DrawHelpMenu()
+{
+	ImGui::SetNextWindowSize({ 1200,200 });
+	if (ImGui::Begin("Help", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse ))
+	{
+		ImGui::Text("Instructions explanation");
+		ImGui::Text("1 RXY  : LOAD the register R with the bit pattern found in the memory cell whose address is XY.");
+		ImGui::Text("2 RXY  : LOAD the register R with the bit pattern XY.");
+		ImGui::Text("3 RXY  : STORE the bit pattern found in register R in the memory cell whose address is XY.");
+		ImGui::Text("4 0RS  : MOVE the bit pattern found in register R to register S. ");
+		ImGui::Text("5 RST  : ADD the bit patterns in registers S and T as though they were two's complement representations and leave the result in register R");
+		ImGui::Text("6 RST  : ADD the bit patterns in registers S and T as though they represented values in floating-point notation and leave the floating-point result in register R. ");
+		ImGui::Text("7 RST  : OR the bit patterns in registers S and T and place the result in register R.");
+		ImGui::Text("8 RST  : AND the bit patterns in register S and T and place the result in register R. ");
+		ImGui::Text("A R0X  : ROTATE the bit pattern in register R one bit to the right X times. Each time place the bit that started at the low-order end at the high-order end. ");
+		ImGui::Text("B RXY  : JUMP to the instruction located in the memory cell at address XY if the bit pattern in register R is equal to the bit pattern in register number 0");
+		ImGui::Text("C 000  : HALT execution.");
+
+	}ImGui::End();
+}
+
+void UI::DrawOptions()
+{
+	ImGui::SetNextWindowSize({ 400,400 });
+	if (ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoCollapse))
+	{
+		if (ImGui::Button("Excute instruction"))
+		{
+			inputTaken = 2;
+		}
+		if (ImGui::Button("Excute Entire Program"))
+		{
+			inputTaken = 3;
+		}
+		if (ImGui::Button("Clear"))
+		{
+			inputTaken = 4;
+		}
+		if (ImGui::Button("Load a new program"))
+		{
+			m_openInstructionWindow = true;
+			for (int i = 0; i < 1000; ++i)
+			{
+				instructions[i] = 0;
+			}
+			for (int i = 0; i < 3; ++i)
+			{
+				startAddress[i] = 0;
+			}
+		}
+		if (ImGui::Button("Help"))
+		{
+			m_openHelpWindow = true;
+		}
+	}ImGui::End();
+
+}
+
+void UI::DrawPcIR(std::string IR, int programCounter)
+{
+	if (ImGui::Begin("IR and PC", NULL, ImGuiWindowFlags_NoCollapse ))
+	{
+		ImGui::Text(("IR : " + IR).c_str());
+		ImGui::Text("PC : %x (hexadecimal)", programCounter);
+	}ImGui::End();
+}
+
+void UI::DrawScreenWindow(char screen)
+{
+	if (ImGui::Begin("Screen", NULL, ImGuiWindowFlags_NoCollapse))
+	{
+		char scr[] = { screen, '\0'};
+		ImGui::Text(scr);
 	}ImGui::End();
 }
 
@@ -259,6 +282,8 @@ UI::UI(ID3D10Device* g_pd3dDevice, IDXGISwapChain* g_pSwapChain, UINT g_ResizeWi
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+
+	//io.ConfigWindowsMoveFromTitleBarOnly;
 	//io.ConfigViewportsNoAutoMerge = true;
 	//io.ConfigViewportsNoTaskBarIcon = true;
 

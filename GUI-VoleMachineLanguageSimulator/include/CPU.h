@@ -5,8 +5,6 @@
 class CPU
 {
 private:
-
-
 	std::string m_validInstructions[11];
 
 	// Take a Hexadecimal number and convert it to decimal number
@@ -38,7 +36,7 @@ public:
 	bool IsValidInstruction();
 
 	// Excute instruction and make changes in main memory and register
-	void ExecuteInstruction(Byte mainMemory[]);
+	void ExecuteInstruction(Byte mainMemory[], char& screen);
 
 	// Make all values in register equal 0
 	void ResetCPU();

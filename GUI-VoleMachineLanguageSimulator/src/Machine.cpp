@@ -4,10 +4,14 @@
 #include <regex>
 
 
+Machine::Machine()
+{
+    ResetMachine();
+}
+
 void Machine::Run(int choice,char* instructions, char* startAddress)
 {
     m_event = Event::NONE;
-    //cpu.programCounter = m_startAddress;
 
     //std::cout << "Enter 1 to load a new program" << std::endl;
     //std::cout << "Enter 2 to execute next step" << std::endl;
@@ -26,17 +30,19 @@ void Machine::Run(int choice,char* instructions, char* startAddress)
     switch (choice)
     {
     case 1:
-        ResetMachine();
-        SetStartAddress(startAddress);
-        LoadNewProgram(instructions);
-        cpu.programCounter = m_startAddress;
+        if (LoadNewProgram(instructions) && SetStartAddress(startAddress))
+        {
+            LoadInstructionsIntoMemory();
+            cpu.programCounter = m_startAddress;
+            cpu.FetchInstruction(m_memory);
+        }
+
         break;
     case 2:
-        cpu.FetchInstruction(m_memory);
-
         if (cpu.IsValidInstruction() && !cpu.isHalt)
         {
-            cpu.ExecuteInstruction(m_memory);
+            cpu.ExecuteInstruction(m_memory, screen);
+            cpu.FetchInstruction(m_memory);
         }
         else if (cpu.isHalt)
         {
@@ -54,8 +60,7 @@ void Machine::Run(int choice,char* instructions, char* startAddress)
             cpu.FetchInstruction(m_memory);
             if (cpu.IsValidInstruction() && !cpu.isHalt)
             {
-                cpu.ExecuteInstruction(m_memory);
-         
+                cpu.ExecuteInstruction(m_memory, screen);
             }
 
             else if (cpu.isHalt)
@@ -81,6 +86,7 @@ void Machine::Run(int choice,char* instructions, char* startAddress)
 
 bool Machine::LoadNewProgram(char* instructions)
 {
+    m_loadedInstructions.clear();
     for (int i = 0;i < 1000;)
     {
         if (instructions[i] == '\n')
@@ -107,8 +113,7 @@ bool Machine::LoadNewProgram(char* instructions)
         m_loadedInstructions.push_back({ instructions[i] ,instructions[i + 1] });
         i += 2;
     }
-    LoadInstructionsIntoMemory();
-
+   
     return true;
 }
 
@@ -164,19 +169,6 @@ void Machine::LoadInstructionsIntoMemory()
     m_loadedInstructions.clear();
 }
 
-bool Machine::SetStartAddress()
-{
-    int startAddress;
-    std::cin >> startAddress;
-
-    // if the loaded instructions won't fit inside of the machine
-    if (startAddress + m_loadedInstructions.size() > 256)
-        return false;
-
-    m_startAddress = startAddress;
-    return true;
-}
-
 Event Machine::GetEvent()
 {
     return m_event;
@@ -187,23 +179,23 @@ void Machine::ResetMachine()
     m_loadedInstructions.clear();
     for (int i = 0; i < 256; ++i)
         m_memory[i] = { {'0','0'} };
-
+    
+    m_startAddress = 0;
     cpu.ResetCPU();
-
-
 }
 
-void Machine::SetStartAddress(char* startAddress)
+bool Machine::SetStartAddress(char *startAddress)
 {
     if (!ValidHex(startAddress[0]) || !ValidHex(startAddress[1]))
     {
-        m_event = Event::INVALID_INSTRUCTION;
-        return;
+        m_event = Event::INVALID_START_ADDRESS;
+        return false;
     }
     std::string address = "";
     address.push_back(startAddress[0]);
     address.push_back(startAddress[1]);
     m_startAddress = stoi(address, 0, 16);
+    return true;
 }
 
 bool Machine::ValidHex(char digit)

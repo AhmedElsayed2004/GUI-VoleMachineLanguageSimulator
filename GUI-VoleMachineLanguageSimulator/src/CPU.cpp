@@ -173,7 +173,6 @@ void CPU::FetchInstruction(Byte mainMemory[])
 	IR[3] = (mainMemory + programCounter + 1)->nibble[1];
 }
 
-
 bool CPU::IsValidInstruction()
 {
 	for (auto& instruction : m_validInstructions)
@@ -199,7 +198,7 @@ bool CPU::IsValidInstruction()
 
 }
 
-void CPU::ExecuteInstruction(Byte mainMemory[])
+void CPU::ExecuteInstruction(Byte mainMemory[], char& screen)
 {
 	if (IR[0] == '1')
 	{
@@ -238,6 +237,12 @@ void CPU::ExecuteInstruction(Byte mainMemory[])
 	}
 	if (IR[0] == '3')
 	{
+
+
+		if (IR[2] == '0' && IR[3] == '0')
+		{
+			screen = IR[1];
+		}
 
 		// implement if input is 3R00 (show on the screen)
 		std::string numberOfRegister = "";
@@ -361,4 +366,5 @@ void CPU::ResetCPU()
 	for (int i = 0; i < 16; ++i)
 		cpuRegister[i] = { {'0','0'} };
 	IR = "0000";
+	programCounter = 0;
 }

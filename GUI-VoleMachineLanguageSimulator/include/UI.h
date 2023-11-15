@@ -32,13 +32,21 @@ private:
 	Event m_event = Event::NONE;
 
 public:
-	void Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, int programCounter);
+	void Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, int programCounter, char screen);
 	char instructions[1000];
 	char startAddress[3];
 	int inputTaken = 0;
 
 	void DrawMemory(const Byte mainMemory[]);
+	void ShowMessage(std::string header, std::string message);
+	void DrawHelpMenu();
+	void DrawRegisters(const Byte CPURegister[]);
+	void DrawNewProgramWindow();
+	void DrawOptions();
+	void DrawPcIR(std::string IR, int programCounter);
+	void DrawScreenWindow(char screen);
 	void SetEvent(Event event);
+
 
 
 	UI(ID3D10Device* g_pd3dDevice, IDXGISwapChain* g_pSwapChain, UINT g_ResizeWidth, UINT g_ResizeHeight,

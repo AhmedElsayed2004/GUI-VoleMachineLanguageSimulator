@@ -14,34 +14,30 @@ private:
 	std::vector<Byte> m_loadedInstructions;
 	Event m_event = Event::NONE;
 
-
 	// Loads all the instructions in a given file returns false if there was an error
 	bool LoadAllInstructions();
-	
-	// Sets the start address of the program returns false if the start address is invalid
-	bool SetStartAddress();
 
 	//void DisplayInfo();
 
 	void ResetMachine();
 
 	// Returns false if it couldn't load a new program
-	bool LoadNewProgram(char* instructions);
-
+	bool LoadNewProgram(char *instructions);
 
 	void LoadInstructionsIntoMemory();
 
-	void SetStartAddress(char* startAddress);
+	bool SetStartAddress(char startAddress[]);
 
 	bool ValidHex(char digit);
 
 public:
 	CPU cpu;
 	Byte m_memory[256];
+	char screen = '0';
 
-	void Run(int choice,char* instructions, char* startAddress);
+	Machine();
+
+	void Run(int choice,char *instructions, char *startAddress);
 	Event GetEvent();
-
-
 };
 

@@ -11,8 +11,11 @@ CPU::CPU()
 	m_validInstructions[3] = "40RS";
 	m_validInstructions[4] = "5RST";
 	m_validInstructions[5] = "6RST";
-	m_validInstructions[6] = "BRXY";
-	m_validInstructions[7] = "C000";
+	m_validInstructions[6] = "7RST";
+	m_validInstructions[7] = "8RST";
+	m_validInstructions[8] = "ARST";
+	m_validInstructions[9] = "BRXY";
+	m_validInstructions[10] = "C000";
 }
 
 int CPU::ToDecimal(std::string HEX)
@@ -83,6 +86,84 @@ Byte CPU::add(Byte b1, Byte b2)
 	return result;
 
 }
+
+Byte CPU::AND(Byte b1, Byte b2)
+{
+	std::string HEXNum1 = "";
+	std::string HEXNum2 = "";
+
+	// Save numbers in string to be easy to deal with it
+	HEXNum1.push_back(b1.nibble[0]);
+	HEXNum1.push_back(b1.nibble[1]);
+	HEXNum2.push_back(b2.nibble[0]);
+	HEXNum2.push_back(b2.nibble[1]);
+
+	// Convert numbers to decimal
+	int num1 = ToDecimal(HEXNum1);
+	int num2 = ToDecimal(HEXNum2);
+
+
+	int anding = num1 & num2;
+
+
+	// Convert the adding to Hexadecimal number to convert it to Byte
+	std::string HEXAdding = ToHEX(anding);
+
+	Byte result;
+
+	// Save the final adding to Byte
+	if (HEXAdding.size() == 1)
+	{
+		result.nibble[0] = '0';
+		result.nibble[1] = HEXAdding[0];
+	}
+	else
+	{
+		result.nibble[0] = HEXAdding[0];
+		result.nibble[1] = HEXAdding[1];
+	}
+
+	return result;
+}
+
+Byte CPU::OR(Byte b1, Byte b2)
+{
+	std::string HEXNum1 = "";
+	std::string HEXNum2 = "";
+
+	// Save numbers in string to be easy to deal with it
+	HEXNum1.push_back(b1.nibble[0]);
+	HEXNum1.push_back(b1.nibble[1]);
+	HEXNum2.push_back(b2.nibble[0]);
+	HEXNum2.push_back(b2.nibble[1]);
+
+	// Convert numbers to decimal
+	int num1 = ToDecimal(HEXNum1);
+	int num2 = ToDecimal(HEXNum2);
+
+
+	int oring = num1 | num2;
+
+	// Convert the adding to Hexadecimal number to convert it to Byte
+	std::string HEXAdding = ToHEX(oring);
+
+	Byte result;
+
+	// Save the final adding to Byte
+	if (HEXAdding.size() == 1)
+	{
+		result.nibble[0] = '0';
+		result.nibble[1] = HEXAdding[0];
+	}
+	else
+	{
+		result.nibble[0] = HEXAdding[0];
+		result.nibble[1] = HEXAdding[1];
+	}
+
+	return result;
+}
+
 void CPU::FetchInstruction(Byte mainMemory[])
 {
 	// Take instruction and put it in IR
@@ -206,6 +287,41 @@ void CPU::ExecuteInstruction(Byte mainMemory[])
 
 		programCounter += 2;
 	}
+
+	if (IR[0] == '7')
+	{
+		std::string numberOfRegister1 = "";
+		std::string numberOfRegister2 = "";
+		std::string numberOfRegister3 = "";
+
+		// Take a number of register from instruction
+		numberOfRegister1.push_back(IR[1]);
+		numberOfRegister2.push_back(IR[2]);
+		numberOfRegister3.push_back(IR[3]);
+
+		// Load in regiter a new value
+		cpuRegister[ToDecimal(numberOfRegister1)] = OR(cpuRegister[ToDecimal(numberOfRegister2)], cpuRegister[ToDecimal(numberOfRegister3)]);
+
+		programCounter += 2;
+	}
+
+	if (IR[0] == '8')
+	{
+		std::string numberOfRegister1 = "";
+		std::string numberOfRegister2 = "";
+		std::string numberOfRegister3 = "";
+
+		// Take a number of register from instruction
+		numberOfRegister1.push_back(IR[1]);
+		numberOfRegister2.push_back(IR[2]);
+		numberOfRegister3.push_back(IR[3]);
+
+		// Load in regiter a new value
+		cpuRegister[ToDecimal(numberOfRegister1)] = AND(cpuRegister[ToDecimal(numberOfRegister2)], cpuRegister[ToDecimal(numberOfRegister3)]);
+
+		programCounter += 2;
+	}
+
 
 	if (IR[0] == 'B')
 	{

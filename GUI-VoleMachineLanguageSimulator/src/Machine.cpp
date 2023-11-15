@@ -4,7 +4,7 @@
 #include <regex>
 
 
-void Machine::Run(int choice,char* instructions)
+void Machine::Run(int choice,char* instructions, char* startAddress)
 {
     m_event = Event::NONE;
     //cpu.programCounter = m_startAddress;
@@ -27,6 +27,7 @@ void Machine::Run(int choice,char* instructions)
     {
     case 1:
         ResetMachine();
+        SetStartAddress(startAddress);
         LoadNewProgram(instructions);
         cpu.programCounter = m_startAddress;
         break;
@@ -71,7 +72,7 @@ void Machine::Run(int choice,char* instructions)
         }
         break;
     case 4:
-        //DisplayInfo();
+        ResetMachine();
         break;
     case 5:
         break;
@@ -80,10 +81,31 @@ void Machine::Run(int choice,char* instructions)
 
 bool Machine::LoadNewProgram(char* instructions)
 {
-    for (int i = 0;i < 1000;i+=2)
+    for (int i = 0;i < 1000;)
     {
-        if (instructions[i] == 0|| instructions[i+1] == 0) break;
-        m_loadedInstructions.push_back({ instructions[i],instructions[i + 1] });
+        if (instructions[i] == '\n')
+        {
+            ++i;
+            continue;
+        }
+        if (instructions[i] == 0)
+        {
+            break;
+        }
+        if (!ValidHex(instructions[i]))
+        {
+            m_loadedInstructions.clear();
+            m_event = Event::INVALID_INSTRUCTION;
+            return true;
+        }
+        if (!ValidHex(instructions[i + 1]))
+        {
+            m_loadedInstructions.clear();
+            m_event = Event::INVALID_INSTRUCTION;
+            return true;
+        }
+        m_loadedInstructions.push_back({ instructions[i] ,instructions[i + 1] });
+        i += 2;
     }
     LoadInstructionsIntoMemory();
 
@@ -139,6 +161,7 @@ void Machine::LoadInstructionsIntoMemory()
     {
         m_memory[i] = m_loadedInstructions[i - m_startAddress];
     }
+    m_loadedInstructions.clear();
 }
 
 bool Machine::SetStartAddress()
@@ -168,4 +191,22 @@ void Machine::ResetMachine()
     cpu.ResetCPU();
 
 
+}
+
+void Machine::SetStartAddress(char* startAddress)
+{
+    if (!ValidHex(startAddress[0]) || !ValidHex(startAddress[1]))
+    {
+        m_event = Event::INVALID_INSTRUCTION;
+        return;
+    }
+    std::string address = "";
+    address.push_back(startAddress[0]);
+    address.push_back(startAddress[1]);
+    m_startAddress = stoi(address, 0, 16);
+}
+
+bool Machine::ValidHex(char digit)
+{
+    return (digit >= '0' && digit <= '9') || (digit >= 'A' && digit <= 'F');
 }

@@ -29,7 +29,7 @@ void UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, 
 	ImGui::NewFrame();
 
 	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-	DrawMemory(mainMemory);
+	DrawMemory(mainMemory, programCounter);
 
 	if (m_event == Event::INVALID_INSTRUCTION)
 		ShowMessage("Invalid Instruction.", "The current instruction is invalid");
@@ -71,8 +71,11 @@ void UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, 
 	m_g_pSwapChain->Present(1, 0); // Present with vsync
 }
 
-void UI::DrawMemory(const Byte mainMemory[])
+void UI::DrawMemory(const Byte mainMemory[], int programCounter)
 {
+	ImVec4 greenColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+	ImVec4 redColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+
 	ImGui::SetNextWindowSize({ 800,400 });
 	if (ImGui::Begin("Memory", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize ))
 	{
@@ -100,7 +103,17 @@ void UI::DrawMemory(const Byte mainMemory[])
 				for (int column = 1; column < 17; column++)
 				{
 					ImGui::TableSetColumnIndex(column);
-					ImGui::Text("%c %c", mainMemory[row * 16 + column - 1].nibble[0], mainMemory[row * 16 + column - 1].nibble[1]);
+					if (row * 16 + column == programCounter + 1 || row * 16 + column == programCounter + 2)
+					{
+						if(m_event == Event::NONE)
+							ImGui::TextColored(greenColor, "%c %c", mainMemory[row * 16 + column - 1].nibble[0], mainMemory[row * 16 + column - 1].nibble[1]);
+						else
+							ImGui::TextColored(redColor, "%c %c", mainMemory[row * 16 + column - 1].nibble[0], mainMemory[row * 16 + column - 1].nibble[1]);
+					}
+					else
+					{
+						ImGui::Text("%c %c", mainMemory[row * 16 + column - 1].nibble[0], mainMemory[row * 16 + column - 1].nibble[1]);
+					}
 				}
 			}
 			ImGui::EndTable();
@@ -235,7 +248,22 @@ void UI::DrawPcIR(std::string IR, int programCounter)
 	if (ImGui::Begin("IR and PC", NULL, ImGuiWindowFlags_NoCollapse ))
 	{
 		ImGui::Text(("IR : " + IR).c_str());
-		ImGui::Text("PC : %x (hexadecimal)", programCounter);
+		if (!m_pcToDecimal)
+			ImGui::Text("PC : %x", programCounter);
+		else
+			ImGui::Text("PC : %d", programCounter);
+
+		if (m_pcToDecimal )
+		{
+			if(ImGui::Button("Convert PC to hex"))
+				m_pcToDecimal = false;
+		}
+		else
+		{
+			if(ImGui::Button("Convert PC to decimal"))
+				m_pcToDecimal = true;
+		}
+
 	}ImGui::End();
 }
 

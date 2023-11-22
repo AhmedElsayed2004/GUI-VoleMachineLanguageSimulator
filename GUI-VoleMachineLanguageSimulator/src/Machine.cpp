@@ -117,49 +117,6 @@ bool Machine::LoadNewProgram(char* instructions)
     return true;
 }
 
-bool Machine::LoadAllInstructions()
-{
-    std::string line;
-
-    Byte firstByte;
-    Byte secondByte;
-    
-    while (std::getline(m_inputFile, line))
-    {
-        // Sets up filters to check if any invalid instructions are put
-        std::string stringFilter = "([1-6]|[B-C])[0-9A-F][0-9A-F][0-9A-F]";
-        std::regex regexFilter(stringFilter);
-
-        // Checks if the given line matches the filter
-        if (std::regex_match(line, regexFilter))
-        {
-            firstByte.nibble[0] = line[0];
-            firstByte.nibble[1] = line[1];
-
-            secondByte.nibble[0] = line[2];
-            secondByte.nibble[1] = line[3];
-
-            m_loadedInstructions.push_back(firstByte);
-            m_loadedInstructions.push_back(secondByte);
-
-        }
-        else
-        {
-            m_loadedInstructions.clear();
-            std::cout << "Invalid instructions" << std::endl;
-            return false;
-        }
-
-        if (m_loadedInstructions.size() > 256)
-        {
-            m_loadedInstructions.clear();
-            std::cout << "Too many instructions" << std::endl;
-            return false;
-        }
-    }
-    return true;
-}
-
 void Machine::LoadInstructionsIntoMemory()
 {
     for (int i = m_startAddress;i < m_startAddress + m_loadedInstructions.size();++i)

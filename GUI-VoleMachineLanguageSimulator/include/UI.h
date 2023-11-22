@@ -22,7 +22,7 @@ private:
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	bool m_openInstructionWindow = false;
 	bool m_openHelpWindow = false;
-
+	bool m_pcToDecimal = false;
 
 	bool CreateDeviceD3D();
 	void CleanupDeviceD3D();
@@ -37,7 +37,7 @@ public:
 	char startAddress[3];
 	int inputTaken = 0;
 
-	void DrawMemory(const Byte mainMemory[]);
+	void DrawMemory(const Byte mainMemory[], int programCounter);
 	void ShowMessage(std::string header, std::string message);
 	void DrawHelpMenu();
 	void DrawRegisters(const Byte CPURegister[]);

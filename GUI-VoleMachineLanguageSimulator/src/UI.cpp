@@ -77,9 +77,9 @@ void UI::DrawMemory(const Byte mainMemory[], int programCounter)
 	ImVec4 redColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 
 	ImGui::SetNextWindowSize({ 800,400 });
-	if (ImGui::Begin("Memory", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize ))
+	if (ImGui::Begin("Memory", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
 	{
-		if (ImGui::BeginTable("Memory", 17, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersH))
+		if (ImGui::BeginTable("Memory", 17, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersH | ImGuiWindowFlags_NoMove))
 		{
 			ImGui::TableSetupColumn("");
 			for (int i = 0; i < 16; ++i)
@@ -127,7 +127,7 @@ void UI::ShowMessage(std::string header, std::string message)
 	const char* cStringMessage = message.c_str();
 
 	ImGui::SetNextWindowSize({ 250,100 });
-	if (ImGui::Begin(cStringHeader, NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse ))
+	if (ImGui::Begin(cStringHeader, NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
 	{
 		ImGui::Text(cStringMessage);
 
@@ -143,9 +143,9 @@ void UI::ShowMessage(std::string header, std::string message)
 void UI::DrawRegisters(const Byte CPURegister[])
 {
 	ImGui::SetNextWindowSize({ 100,350 });
-	if (ImGui::Begin("Register", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize ))
+	if (ImGui::Begin("Register", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
 	{
-		if (ImGui::BeginTable("Register", 2, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersH))
+		if (ImGui::BeginTable("Register", 2, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersH | ImGuiWindowFlags_NoMove))
 		{
 
 			for (int row = 0; row < 16; row++)
@@ -167,7 +167,7 @@ void UI::DrawRegisters(const Byte CPURegister[])
 void UI::DrawNewProgramWindow()
 {
 	ImGui::SetNextWindowSize({ 400,400 });
-	if (ImGui::Begin("Input instructions", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+	if (ImGui::Begin("Input instructions", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
 	{
 		ImGui::Text("Enter instructions");
 		ImGui::InputTextMultiline("##instructions", instructions, IM_ARRAYSIZE(instructions), ImVec2(400, 200));
@@ -188,7 +188,7 @@ void UI::DrawNewProgramWindow()
 void UI::DrawHelpMenu()
 {
 	ImGui::SetNextWindowSize({ 1200,200 });
-	if (ImGui::Begin("Help", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse ))
+	if (ImGui::Begin("Help", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
 	{
 		ImGui::Text("Instructions explanation");
 		ImGui::Text("1 RXY  : LOAD the register R with the bit pattern found in the memory cell whose address is XY.");
@@ -209,7 +209,7 @@ void UI::DrawHelpMenu()
 void UI::DrawOptions()
 {
 	ImGui::SetNextWindowSize({ 400,400 });
-	if (ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoCollapse))
+	if (ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
 	{
 		if (ImGui::Button("Excute instruction"))
 		{
@@ -245,7 +245,7 @@ void UI::DrawOptions()
 
 void UI::DrawPcIR(std::string IR, int programCounter)
 {
-	if (ImGui::Begin("IR and PC", NULL, ImGuiWindowFlags_NoCollapse ))
+	if (ImGui::Begin("IR and PC", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
 	{
 		ImGui::Text(("IR : " + IR).c_str());
 		if (!m_pcToDecimal)
@@ -269,7 +269,7 @@ void UI::DrawPcIR(std::string IR, int programCounter)
 
 void UI::DrawScreenWindow(char screen)
 {
-	if (ImGui::Begin("Screen", NULL, ImGuiWindowFlags_NoCollapse))
+	if (ImGui::Begin("Screen", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
 	{
 		char scr[] = { screen, '\0'};
 		ImGui::Text(scr);

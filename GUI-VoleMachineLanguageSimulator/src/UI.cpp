@@ -1,6 +1,6 @@
 #include "UI.h"
 
-void UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, int programCounter, char screen)
+bool UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, int programCounter, char screen)
 {
 	
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -10,7 +10,9 @@ void UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, 
 	{
 		::TranslateMessage(&msg);
 		::DispatchMessage(&msg);
-		if (msg.message == WM_QUIT);
+		if (msg.message == WM_QUIT)
+			return false;
+
 
 	}
 
@@ -69,6 +71,8 @@ void UI::Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, 
 	}
 
 	m_g_pSwapChain->Present(1, 0); // Present with vsync
+
+	return true;
 }
 
 void UI::DrawMemory(const Byte mainMemory[], int programCounter)

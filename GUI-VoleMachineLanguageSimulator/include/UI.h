@@ -32,7 +32,7 @@ private:
 	Event m_event = Event::NONE;
 
 public:
-	void Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, int programCounter, char screen);
+	bool Run(const Byte mainMemory[], const Byte CPURegister[], std::string IR, int programCounter, char screen);
 	char instructions[1000];
 	char startAddress[3];
 	int inputTaken = 0;

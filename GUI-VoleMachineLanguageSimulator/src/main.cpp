@@ -18,8 +18,9 @@ int main()
     UI ui(g_pd3dDevice, g_pSwapChain, g_ResizeWidth, g_ResizeHeight, g_mainRenderTargetView, hwnd, wc);
 
     Machine machine;
+    bool isRunning = true;
     // UI RUNNER
-    while (true)
+    while (isRunning)
     {
         if (ui.inputTaken)
         {
@@ -27,7 +28,7 @@ int main()
             ui.inputTaken = 0;
             ui.SetEvent(machine.GetEvent());
         }   
-        ui.Run(machine.m_memory, machine.cpu.cpuRegister, machine.cpu.IR, machine.cpu.programCounter, machine.screen);
+        isRunning = ui.Run(machine.m_memory, machine.cpu.cpuRegister, machine.cpu.IR, machine.cpu.programCounter, machine.screen);
 
     }
 

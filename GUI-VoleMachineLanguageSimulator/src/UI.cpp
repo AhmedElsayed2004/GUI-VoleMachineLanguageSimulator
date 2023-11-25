@@ -167,7 +167,7 @@ void UI::DrawRegisters(const Byte CPURegister[])
 void UI::DrawNewProgramWindow()
 {
 	ImGui::SetNextWindowSize({ 400,400 });
-	if (ImGui::Begin("Input instructions", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
+	if (ImGui::Begin("Input instructions", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking))
 	{
 		ImGui::Text("Enter instructions");
 		ImGui::InputTextMultiline("##instructions", instructions, IM_ARRAYSIZE(instructions), ImVec2(400, 200));
@@ -187,8 +187,9 @@ void UI::DrawNewProgramWindow()
 
 void UI::DrawHelpMenu()
 {
+	bool isClosed = false;
 	ImGui::SetNextWindowSize({ 1200,200 });
-	if (ImGui::Begin("Help", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
+	if (ImGui::Begin("Help", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking) && !isClosed)
 	{
 		ImGui::Text("Instructions explanation");
 		ImGui::Text("1 RXY  : LOAD the register R with the bit pattern found in the memory cell whose address is XY.");
@@ -202,6 +203,11 @@ void UI::DrawHelpMenu()
 		ImGui::Text("A R0X  : ROTATE the bit pattern in register R one bit to the right X times. Each time place the bit that started at the low-order end at the high-order end. ");
 		ImGui::Text("B RXY  : JUMP to the instruction located in the memory cell at address XY if the bit pattern in register R is equal to the bit pattern in register number 0");
 		ImGui::Text("C 000  : HALT execution.");
+
+		if (ImGui::Button("Close"))
+		{
+			isClosed = true;
+		}ImGui::End();
 
 	}ImGui::End();
 }

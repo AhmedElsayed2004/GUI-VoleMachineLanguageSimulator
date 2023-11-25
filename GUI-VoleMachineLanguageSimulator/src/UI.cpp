@@ -191,9 +191,8 @@ void UI::DrawNewProgramWindow()
 
 void UI::DrawHelpMenu()
 {
-	bool isClosed = false;
 	ImGui::SetNextWindowSize({ 1200,200 });
-	if (ImGui::Begin("Help", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking) && !isClosed)
+	if (ImGui::Begin("Help", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking))
 	{
 		ImGui::Text("Instructions explanation");
 		ImGui::Text("1 RXY  : LOAD the register R with the bit pattern found in the memory cell whose address is XY.");
@@ -210,7 +209,7 @@ void UI::DrawHelpMenu()
 
 		if (ImGui::Button("Close"))
 		{
-			isClosed = true;
+			m_openHelpWindow = false;
 		}ImGui::End();
 
 	}ImGui::End();

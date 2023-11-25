@@ -210,7 +210,7 @@ void UI::DrawHelpMenu()
 		if (ImGui::Button("Close"))
 		{
 			m_openHelpWindow = false;
-		}ImGui::End();
+		}
 
 	}ImGui::End();
 }

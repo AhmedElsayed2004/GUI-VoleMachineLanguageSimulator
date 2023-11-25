@@ -99,5 +99,6 @@
   <ItemGroup>
     <None Include="bin\GUI-VoleMachineLanguageSimulator.exe" />
     <None Include="bin\imgui.ini" />
+    <None Include="imgui.ini" />
   </ItemGroup>
 </Project>

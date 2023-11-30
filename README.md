@@ -9,7 +9,7 @@ This program was split into two parts:
 
 2- The backend, this is the actual program, this is where all of the error checking and program logic is stored.        
  
-3- The UI is inside of the UI files, and the backend is inside of the Machine, Cpu and Program files.      
+The UI is inside of the UI files, and the backend is inside of the Machine, Cpu and Program files.      
 
  
 # Supported instructions and some screen shots 
